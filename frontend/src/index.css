@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { @apply bg-paper text-ink antialiased font-sans; }
+  h1, h2, h3 { @apply font-display text-ink; }
+  :focus-visible { outline: 2px solid theme('colors.flag.DEFAULT'); outline-offset: 2px; }
+}
+
+@layer components {
+  /* Squared-off, stationery-like controls — an official platform's chrome, not a
+     rounded-pill SaaS button. */
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-flag active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary { @apply btn bg-navy text-paper hover:bg-navy-800; }
+  .btn-secondary { @apply btn bg-transparent text-navy ring-1 ring-inset ring-navy/30 hover:bg-navy-50; }
+  .btn-success { @apply btn bg-olive text-paper hover:bg-olive/90; }
+  .btn-danger { @apply btn bg-flag text-paper hover:bg-flag-600; }
+  .btn-ghost { @apply btn text-ink/60 hover:bg-ink/5; }
+  .btn-sm { @apply px-3 py-1.5 text-xs; }
+
+  /* A plain paper box with a hairline rule, not a floating shadow-card. Used for most
+     generic containers across the app — deliberately quiet so the ledger rows and
+     ticket stubs (below) stand out as the distinctive elements. */
+  .card { @apply rounded-sm bg-white/60 ring-1 ring-inset ring-ink/10; }
+
+  .input { @apply w-full rounded-sm border-0 bg-white px-3 py-2 text-sm text-ink ring-1 ring-inset ring-ink/15 placeholder:text-ink/40 focus:ring-2 focus:ring-flag focus:outline-none; }
+  .label { @apply mb-1 block text-sm font-medium text-ink/70; }
+  .field-error { @apply mt-1 text-xs text-flag-600; }
+  .badge { @apply inline-flex items-center gap-1 rounded-sm px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset; }
+  .page-title { @apply font-display text-2xl font-semibold tracking-tight text-ink sm:text-3xl; }
+  .table { @apply min-w-full divide-y divide-ink/10 text-sm; }
+  .table th { @apply px-3 py-2 text-left text-xs font-semibold text-ink/50 bg-ink/[.03]; }
+  .table td { @apply px-3 py-2 align-top text-ink/80; }
+}
+
+.leaflet-container { @apply rounded-sm z-0; }
+
+html { scroll-behavior: smooth; }
+
+.animate-page { animation: page-in .35s ease-out both; }
+@keyframes page-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Scroll-reveal is kept available but is no longer used on every section — see
+   Landing.jsx, which now has exactly one deliberate motion moment (the stamp). */
+.reveal { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+.reveal-in { opacity: 1; transform: none; }
+
+.skeleton { position: relative; overflow: hidden; background: rgba(32,28,22,.08); border-radius: 2px; }
+.skeleton::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent); animation: shimmer 1.4s infinite; }
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* ---------- Ledger roster row (replaces the identical rounded-card grid for
+   listing drives) — a colored left tab keyed to the event's category, like a
+   tabbed folder in a filing system. ---------- */
+.roster-row { @apply relative flex gap-4 border-b border-ink/10 bg-transparent py-4 pl-4 transition-colors hover:bg-ink/[.02]; }
+.roster-row::before { content: ''; position: absolute; left: 0; top: 0.5rem; bottom: 0.5rem; width: 3px; background: var(--tab-color, theme('colors.navy.DEFAULT')); }
+
+/* ---------- Ticket stub (the 3-step "how it works" sequence) — a keepsake shape
+   with a notch, echoing the certificate/proof-of-attendance outcome. Numbering is
+   used here because the content genuinely is a sequence. ---------- */
+.ticket {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(32,28,22,.12);
+  border-radius: 2px;
+}
+.ticket::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: theme('colors.paper');
+  border: 1px solid rgba(32,28,22,.12);
+  border-radius: 9999px;
+}
+.ticket:last-child::after { display: none; }
+
+/* ---------- Stamp (the "NOT ME, BUT YOU" motto) — one deliberate motion moment on
+   load, replacing scroll-reveal-everywhere. Respects reduced motion below. ---------- */
+.stamp { animation: stamp-down .5s cubic-bezier(.2,1.4,.4,1) both; animation-delay: .15s; }
+@keyframes stamp-down {
+  0% { opacity: 0; transform: scale(1.4) rotate(-8deg); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1) rotate(-8deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-page, .skeleton::after, .stamp { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
